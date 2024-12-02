@@ -5,9 +5,9 @@ POST http://localhost:5000/post
 Content-Type: application/json
 
 {
-    "title": "123",
-    "content": "456",
-    "author": "Matan Bar"
+    "title": "Hi",
+    "content": "Shay",
+    "author": "Or Natan"
 }
 
 ###
@@ -19,3 +19,10 @@ GET http://localhost:5000/post
 #Get a post by id
 
 GET http://localhost:5000/post/67488c842d03659f5385c2ba
+
+###
+#Get a all posts by author
+
+GET http://localhost:5000/post?author=Or Natan
+
+###
