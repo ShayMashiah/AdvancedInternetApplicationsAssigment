@@ -10,4 +10,6 @@ router.get('/', Post.GetAllPosts);
 
 router.get('/:id', Post.PostByID);
 
+router.put('/:id', Post.PostUpdate);
+
 module.exports = router;
