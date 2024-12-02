@@ -45,3 +45,15 @@ Content-Type: application/json
 DELETE  http://localhost:5000/post/674dd81ffb80a497e994688d
 
 ###
+
+###
+#Create a new comment
+
+POST http://localhost:5000/comment
+Content-Type: application/json
+
+{
+    "PostId": "674de94fa21c3e373ad7b8ec",
+    "content": "Ya Zin",
+    "author": "Shay Mashiah"
+}
