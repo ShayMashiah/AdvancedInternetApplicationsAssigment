@@ -9,3 +9,8 @@ Content-Type: application/json
     "content": "456",
     "author": "Matan Bar"
 }
+
+###
+#Get all posts
+
+GET http://localhost:5000/post
