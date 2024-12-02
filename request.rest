@@ -1,0 +1,11 @@
+###
+#Create a new post
+
+POST http://localhost:5000/post
+Content-Type: application/json
+
+{
+    "title": "123",
+    "content": "456",
+    "author": "Matan Bar"
+}
