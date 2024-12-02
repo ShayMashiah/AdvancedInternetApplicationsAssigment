@@ -28,4 +28,15 @@ const GetAllPosts = async (req,res) => {
     }
 }
 
-module.exports = {CreateNewPost, GetAllPosts}; // Export the CreateNewPost function to be used in the routes file
+const PostByID = async (req,res) => {
+    const id = req.params.id; // Get the post ID from the request parameters
+    try {
+        const post = await postModel.findById(id); // Find the post by ID
+        res.status(200).send(post);
+    }
+    catch{
+        res.status(400).send('Error retrieving post');
+    }
+}
+
+module.exports = {CreateNewPost, GetAllPosts, PostByID}; // Export the CreateNewPost function to be used in the routes file

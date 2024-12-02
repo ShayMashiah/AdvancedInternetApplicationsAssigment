@@ -14,3 +14,8 @@ Content-Type: application/json
 #Get all posts
 
 GET http://localhost:5000/post
+
+###
+#Get a post by id
+
+GET http://localhost:5000/post/67488c842d03659f5385c2ba
