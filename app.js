@@ -23,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true })); // Parse incoming request bo
 // Use the post routes
 app.use('/post', postRoutes);
 
-app.use('/comment', commentRoutes);
+// app.use('/comment', commentRoutes);
 
 app.listen(port, () => {
     console.log('Server is running on port 5000');
