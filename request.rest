@@ -25,4 +25,17 @@ GET http://localhost:5000/post/67488c842d03659f5385c2ba
 
 GET http://localhost:5000/post?author=Or Natan
 
+
 ###
+#Update a post by id
+
+PUT http://localhost:5000/post/674dafea2ee60d889576b291
+Content-Type: application/json
+
+{
+    "title": "Hi",
+    "content": "Hello!",
+    "author": "Elad Rabinovich"
+}
+
+
