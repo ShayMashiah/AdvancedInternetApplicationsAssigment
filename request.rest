@@ -6,8 +6,8 @@ Content-Type: application/json
 
 {
     "title": "Hi",
-    "content": "Shay",
-    "author": "Or Natan"
+    "content": "My name is Omri",
+    "author": "Omri Ivri"
 }
 
 ###
