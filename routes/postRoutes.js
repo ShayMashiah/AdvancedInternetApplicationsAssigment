@@ -12,4 +12,6 @@ router.get('/:id', Post.PostByID);
 
 router.put('/:id', Post.PostUpdate);
 
+router.delete('/:id', Post.PostDelete);
+
 module.exports = router;

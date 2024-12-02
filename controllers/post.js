@@ -50,4 +50,17 @@ const PostUpdate = async (req,res) => {
     }
 }
 
-module.exports = {CreateNewPost, GetAllPosts, PostByID, PostUpdate}; // Export the CreateNewPost function to be used in the routes file
+
+const PostDelete = async (req,res) => {
+    const PostID = req.params.id; // Get the post to delete from the id
+    try {
+        const deletedPost = await postModel.findByIdAndDelete(PostID); // Delete the post
+        res.status(200).send(deletedPost);
+    }
+    catch{
+        res.status(400).send('Error deleting post');
+    }
+}
+
+
+module.exports = {CreateNewPost, GetAllPosts, PostByID, PostUpdate, PostDelete}; // Export the CreateNewPost function to be used in the routes file
