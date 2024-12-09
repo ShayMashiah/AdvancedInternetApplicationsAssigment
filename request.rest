@@ -68,3 +68,16 @@ GET http://localhost:5000/comment
 #Get a comment by id
 
 GET http://localhost:5000/comment/675741b8ebba9bd796445df5
+
+
+###
+#Update a comment by id
+
+PUT http://localhost:5000/comment/674dec71454eb40bab0c675
+Content-Type: application/json
+
+{
+    "PostId": "674de94fa21c3e373ad7b8eb",
+    "content": "Messi Hagoat",
+    "author": "Roi Raz"
+}
