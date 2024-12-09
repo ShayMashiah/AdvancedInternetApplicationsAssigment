@@ -5,9 +5,9 @@ POST http://localhost:5000/post
 Content-Type: application/json
 
 {
-    "title": "Hi",
-    "content": "My name is Omri",
-    "author": "Omri Ivri"
+    "title": "Siu",
+    "content": "Siuuuuuuuuuuuuuuuuuu",
+    "author": "CR7"
 }
 
 ###
@@ -18,7 +18,7 @@ GET http://localhost:5000/post
 ###
 #Get a post by id
 
-GET http://localhost:5000/post/67488c842d03659f5385c2ba
+GET http://localhost:5000/post/67488c842d03659f5385c2b
 
 ###
 #Get a all posts by author
@@ -53,12 +53,18 @@ POST http://localhost:5000/comment
 Content-Type: application/json
 
 {
-    "PostId": "674de94fa21c3e373ad7b8eb",
-    "content": "Byeeee",
-    "author": "Shay Mashiah"
+    "PostId": "675741b8ebba9bd796445df5",
+    "content": "SIUUUUUU",
+    "author": "CR7 Mashiah"
 }
 
 ###
 #Get all comments
 
 GET http://localhost:5000/comment
+
+
+###
+#Get a comment by id
+
+GET http://localhost:5000/comment/675741b8ebba9bd796445df5
