@@ -8,4 +8,6 @@ router.get('/', Comment.GetAllComments);
 
 router.get('/:id', Comment.CommentByPostID);
 
+router.put('/:id', Comment.CommentUpdate);
+
 module.exports = router;
