@@ -34,4 +34,33 @@ const GetAllComments = async (req, res) => {
     }
 }
 
-module.exports = {CreateComment,GetAllComments};
+
+const CommentByPostID = async (req, res) => {
+    const id = req.params.id;
+    try{
+        const post = await postModel.findById(id);
+        if(!post){
+            res.status(404).json('Post not found');
+            return;
+        }
+    }
+    catch (error) {
+        res.status(400).json('Error finding post');
+        return;
+    }
+
+    try {
+        const comment = await commentModel.find({PostId: id});
+        if (comment.length === 0) {
+            return res.status(404).json('No comments found for this post ID');
+        }
+        else{
+            res.status(200).json(comment);
+        }
+    } catch (error) {
+        res.status(400).json('Error retrieving comments');
+    }
+}
+
+
+module.exports = {CreateComment,GetAllComments, CommentByPostID};

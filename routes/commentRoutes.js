@@ -6,4 +6,6 @@ router.post('/', Comment.CreateComment);
 
 router.get('/', Comment.GetAllComments);
 
+router.get('/:id', Comment.CommentByPostID);
+
 module.exports = router;
