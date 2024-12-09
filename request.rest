@@ -42,7 +42,7 @@ Content-Type: application/json
 ###
 #Delete a post by id
 
-DELETE  http://localhost:5000/post/674dd81ffb80a497e994688d
+DELETE  http://localhost:5000/post/674de94fa21c3e373ad7b8eb
 
 ###
 

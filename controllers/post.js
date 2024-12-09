@@ -1,4 +1,5 @@
 const postModel = require('../models/postModels'); // Import the post model
+const commentModel = require('../models/commentModels'); // Import the comment model
 
 
 const CreateNewPost = async (req,res) => {
@@ -24,7 +25,7 @@ const GetAllPosts = async (req,res) => {
         }
     }
     catch{
-        res.status(400).send('Error retrieving posts');
+        res.status(404).send('Error retrieving posts');
     }
 }
 
@@ -35,7 +36,7 @@ const PostByID = async (req,res) => {
         res.status(200).send(post);
     }
     catch{
-        res.status(400).send('Error retrieving post');
+        res.status(404).send('Error retrieving post');
     }
 }
 
@@ -46,7 +47,7 @@ const PostUpdate = async (req,res) => {
         res.status(200).send(updatedPost);
     }
     catch{
-        res.status(400).send('Error updating post');
+        res.status(404).send('Error updating post');
     }
 }
 
@@ -54,13 +55,14 @@ const PostUpdate = async (req,res) => {
 const PostDelete = async (req,res) => {
     const PostID = req.params.id; // Get the post to delete from the id
     try {
+        if (PostID) {
+            await commentModel.deleteMany({PostId: PostID});  
+        } 
         const deletedPost = await postModel.findByIdAndDelete(PostID); // Delete the post
         res.status(200).send(deletedPost);
     }
     catch{
-        res.status(400).send('Error deleting post');
+        res.status(400).send('Error deleting post' + PostID);
     }
 }
-
-
 module.exports = {CreateNewPost, GetAllPosts, PostByID, PostUpdate, PostDelete}; // Export the CreateNewPost function to be used in the routes file
