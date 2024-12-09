@@ -72,4 +72,15 @@ const CommentUpdate = async (req, res) => {
         res.status(404).json('Error updating comment');
     }
 }
-module.exports = {CreateComment,GetAllComments, CommentByPostID, CommentUpdate};
+
+const CommentDelete = async (req, res) => {
+    const CommentId = req.params.id;
+    try {
+        const deletedComment = await commentModel.findByIdAndDelete(CommentId);
+        res.status(200).json(deletedComment);
+    }
+    catch (error) {
+        res.status(404).json('Error finding comment');
+    }
+}
+module.exports = {CreateComment, GetAllComments, CommentByPostID, CommentUpdate, CommentDelete};
