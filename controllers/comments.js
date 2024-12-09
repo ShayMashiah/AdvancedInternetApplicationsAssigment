@@ -25,4 +25,13 @@ const CreateComment = async (req, res) => {
     }
 }
 
-module.exports = {CreateComment};
+const GetAllComments = async (req, res) => {
+    try {
+        const comment = await commentModel.find();
+        res.status(200).json(comment);
+    } catch (error) {
+        res.status(400).json('Error retrieving comments');
+    }
+}
+
+module.exports = {CreateComment,GetAllComments};

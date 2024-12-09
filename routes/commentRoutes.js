@@ -4,4 +4,6 @@ const Comment = require('../controllers/comments');
 
 router.post('/', Comment.CreateComment);
 
+router.get('/', Comment.GetAllComments);
+
 module.exports = router;

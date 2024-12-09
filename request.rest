@@ -57,3 +57,8 @@ Content-Type: application/json
     "content": "Byeeee",
     "author": "Shay Mashiah"
 }
+
+###
+#Get all comments
+
+GET http://localhost:5000/comment
