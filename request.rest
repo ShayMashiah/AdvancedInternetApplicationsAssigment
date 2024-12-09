@@ -53,7 +53,7 @@ POST http://localhost:5000/comment
 Content-Type: application/json
 
 {
-    "PostId": "674de94fa21c3e373ad7b8ec",
-    "content": "Ya Zin",
+    "PostId": "674de94fa21c3e373ad7b8eb",
+    "content": "Byeeee",
     "author": "Shay Mashiah"
 }
