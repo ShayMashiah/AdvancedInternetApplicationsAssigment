@@ -1,3 +1,6 @@
+// Shay Mashiah - 318877263
+// Omri Ivry - 314806357
+
 const express = require('express')
 const app = express() // Create an Express application
 const dotenv = require('dotenv').config() // Load environment variables from a.env file
