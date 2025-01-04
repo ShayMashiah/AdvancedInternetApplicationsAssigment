@@ -6,7 +6,7 @@ const CreateNewPost = async (req,res) => {
     const post = req.body;   // Get the new post from the request body
     try {
         const newPost = await postModel.create(post); // Create a new post
-        res.status(200).send(newPost);
+        res.status(201).send(newPost);
     }
     catch{
         res.status(400).send('Error creating post');
