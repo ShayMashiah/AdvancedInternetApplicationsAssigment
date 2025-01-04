@@ -5,9 +5,9 @@ POST http://localhost:5000/post
 Content-Type: application/json
 
 {
-    "title": "Siu",
-    "content": "Siuuuuuuuuuuuuuuuuuu",
-    "author": "CR7"
+    "title": "LM10",
+    "content": "Messi is the GOAT",
+    "author": "Shay Mashiah"
 }
 
 ###
@@ -18,18 +18,18 @@ GET http://localhost:5000/post
 ###
 #Get a post by id
 
-GET http://localhost:5000/post/67488c842d03659f5385c2b
+GET http://localhost:5000/post/67799fe7e3504ac6e5d78163
 
 ###
 #Get a all posts by author
 
-GET http://localhost:5000/post?author=Or Natan
+GET http://localhost:5000/post?author=Shay Mashiah
 
 
 ###
 #Update a post by id
 
-PUT http://localhost:5000/post/674dafea2ee60d889576b291
+PUT http://localhost:5000/post/6779a005e3504ac6e5d78166
 Content-Type: application/json
 
 {
@@ -42,7 +42,7 @@ Content-Type: application/json
 ###
 #Delete a post by id
 
-DELETE  http://localhost:5000/post/674de94fa21c3e373ad7b8eb
+DELETE  http://localhost:5000/post/67799fe7e3504ac6e5d78163
 
 ###
 
@@ -53,9 +53,9 @@ POST http://localhost:5000/comment
 Content-Type: application/json
 
 {
-    "PostId": "675741b8ebba9bd796445df5",
-    "content": "SIUUUUUU",
-    "author": "CR7 Mashiah"
+    "PostId": "6779a067e3504ac6e5d78173",
+    "content": "Booo",
+    "author": "LM10"
 }
 
 ###
@@ -67,17 +67,17 @@ GET http://localhost:5000/comment
 ###
 #Get a comment by id
 
-GET http://localhost:5000/comment/675741b8ebba9bd796445df5
+GET http://localhost:5000/comment/6779a067e3504ac6e5d78173
 
 
 ###
 #Update a comment by id
 
-PUT http://localhost:5000/comment/674dec71454eb40bab0c675
+PUT http://localhost:5000/comment/6779a08ae3504ac6e5d7817a
 Content-Type: application/json
 
 {
-    "PostId": "674de94fa21c3e373ad7b8eb",
+    "PostId": "6779a067e3504ac6e5d78173",
     "content": "Messi Hagoat",
     "author": "Roi Raz"
 }
@@ -85,4 +85,4 @@ Content-Type: application/json
 ###
 #Delete a comment by id
 
-DELETE  http://localhost:5000/comment/67573b94b84afddfbd779cb8
+DELETE  http://localhost:5000/comment/6779a08ae3504ac6e5d7817a
