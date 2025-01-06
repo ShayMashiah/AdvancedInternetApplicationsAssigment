@@ -45,7 +45,7 @@ const CommentByPostID = async (req, res) => {
         }
     }
     catch (error) {
-        res.status(400).json('Error finding post');
+        res.status(404).json('Error finding post');
         return;
     }
 
