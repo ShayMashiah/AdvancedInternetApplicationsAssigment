@@ -1,9 +1,9 @@
-const commentModel = require('../models/commentModels');
-const postModel = require('../models/postModels');
+import postModel from '../models/postModels'; // Import the post model
+import commentModel from '../models/commentModels'; // Import the comment model
+import { Request, Response } from "express";
 
 
-
-const CreateComment = async (req, res) => {
+const CreateComment = async (req : Request, res : Response) => {
     const postId = req.body.PostId;
     try{
         const post = await postModel.findById(postId);
@@ -13,7 +13,7 @@ const CreateComment = async (req, res) => {
         }
     }
     catch (error) {
-        res.status(400).json('Error finding post');
+        res.status(400).json('Error finding post: ' + error);
         return;
     }
     const comment = req.body;
@@ -21,21 +21,21 @@ const CreateComment = async (req, res) => {
         const savedComment = await commentModel.create(comment);
         res.status(200).json(savedComment);
     } catch (error) {
-        res.status(400).json('Error creating comment');
+        res.status(400).json('Error creating comment: ' + error);
     }
 }
 
-const GetAllComments = async (req, res) => {
+const GetAllComments = async (req : Request, res : Response) => {
     try {
         const comment = await commentModel.find();
         res.status(200).json(comment);
     } catch (error) {
-        res.status(400).json('Error retrieving comments');
+        res.status(400).json('Error retrieving comments: ' + error);
     }
 }
 
 
-const CommentByPostID = async (req, res) => {
+const CommentByPostID = async (req : Request, res : Response) => {
     const id = req.params.id;
     try{
         const post = await postModel.findById(id);
@@ -45,42 +45,43 @@ const CommentByPostID = async (req, res) => {
         }
     }
     catch (error) {
-        res.status(404).json('Error finding post');
+        res.status(404).json('Error finding post: ' + error);
         return;
     }
 
     try {
         const comment = await commentModel.find({PostId: id});
         if (comment.length === 0) {
-            return res.status(404).json('No comments found for this post ID');
+            res.status(404).json('No comments found for this post ID');
+            return;
         }
         else{
             res.status(200).json(comment);
         }
     } catch (error) {
-        res.status(400).json('Error retrieving comments');
+        res.status(400).json('Error retrieving comments: ' + error);
     }
 }
 
-const CommentUpdate = async (req, res) => {
+const CommentUpdate = async (req : Request, res : Response) => {
     const CommentId  = req.params.id;
     try {
         const updatedComment = await commentModel.findByIdAndUpdate(CommentId,req.body, {new: true});
         res.status(200).json(updatedComment);
     }
     catch (error) {
-        res.status(404).json('Error updating comment');
+        res.status(404).json('Error updating comment: ' + CommentId + ' The error is: ' + error);
     }
 }
 
-const CommentDelete = async (req, res) => {
+const CommentDelete = async (req : Request, res : Response) => {
     const CommentId = req.params.id;
     try {
         const deletedComment = await commentModel.findByIdAndDelete(CommentId);
         res.status(200).json(deletedComment);
     }
     catch (error) {
-        res.status(404).json('Error finding comment');
+        res.status(404).json('Error finding comment: ' + CommentId + ' The error is: ' + error);
     }
 }
-module.exports = {CreateComment, GetAllComments, CommentByPostID, CommentUpdate, CommentDelete};
+export default {CreateComment, GetAllComments, CommentByPostID, CommentUpdate, CommentDelete};

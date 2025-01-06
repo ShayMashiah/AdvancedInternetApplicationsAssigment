@@ -1,9 +1,11 @@
-const request = require("supertest");
-const initApp = require("../server");
-const mongoose = require("mongoose");
-const postModel = require("../models/postModels");
+import request from "supertest";
+import initApp from "../server";
+import mongoose from "mongoose";
+import postModel from "../models/postModels";
+import { Express } from "express";
 
-var app;
+let app: Express;
+let postId: string;
 
 beforeAll(async () => {
   app = await initApp();

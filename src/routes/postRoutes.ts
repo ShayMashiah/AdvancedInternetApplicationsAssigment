@@ -1,8 +1,6 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const Post = require('../controllers/post');
-
-
+import Post from '../controllers/post';
 
 router.post('/', Post.CreateNewPost);
 
@@ -14,4 +12,4 @@ router.put('/:id', Post.PostUpdate);
 
 router.delete('/:id', Post.PostDelete);
 
-module.exports = router;
+export default router;
