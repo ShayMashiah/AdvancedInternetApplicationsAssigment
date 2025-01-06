@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 interface IPost {
-    PostId: string;
     title: string;
     content: string;
     author: string;
