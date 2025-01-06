@@ -86,3 +86,14 @@ Content-Type: application/json
 #Delete a comment by id
 
 DELETE  http://localhost:5000/comment/6779a5ec6aaa0ade05ad4e59
+
+###
+#Register a new user
+
+POST http://localhost:5000/auth/register
+Content-Type: application/json
+
+{
+    "email": "ShayMashiah@gmail.com",
+    "password": "123456"
+}

@@ -2,11 +2,11 @@ import express, {Express} from 'express'
 const app = express() // Create an Express application
 import dotenv from 'dotenv'// Load environment variables from a.env file
 dotenv.config() 
-const port = process.env.PORT  // Get the port from the environment variables or default to 5000
 import postRoutes from './routes/postRoutes'; // Import the post routes
 import commentRoutes from './routes/commentRoutes'; // Import the comment routes
 import mongoose from 'mongoose'; // Import mongoose
 import bodyParser from 'body-parser'; // Import body-parser
+import authRoutes from './routes/authRoutes'; // Import the auth routes
 
 
 
@@ -32,6 +32,8 @@ const initApp = () => {
             app.use('/post', postRoutes);
 
             app.use('/comment', commentRoutes);
+
+            app.use('/auth',authRoutes); 
 
             console.log("initApp finish");
               

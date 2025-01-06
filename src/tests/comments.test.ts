@@ -52,7 +52,6 @@ describe("Comments test suite", () => {
     expect(response.body.content).toBe(exampleComment.content);
     expect(response.body.author).toBe(exampleComment.author);
     commentId = response.body._id;
-    console.log(commentId);
   });
 
   test("Comment test get all comments after create", async () => {
@@ -63,7 +62,6 @@ describe("Comments test suite", () => {
 
   test("Comment test get comment by author", async () => {
     const response = await request(app).get("/comment?author=Shay Mashiah");
-    console.log(response.body); 
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveLength(1);
     expect(response.body[0].author).toBe("Shay Mashiah");
@@ -99,8 +97,6 @@ describe("Comments test suite", () => {
       author: "Shay Mashiah"
     };
     const responseComment = await request(app).put("/comment/" + commentId).send(updatedComment);
-    console.log(commentId);
-    console.log(responseComment.body);
     expect(responseComment.statusCode).toBe(200);
     expect(responseComment.body.content).toBe("This is an updated comment");
   });
