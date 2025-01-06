@@ -1,16 +1,17 @@
-const express = require('express')
+import express, {Express} from 'express'
 const app = express() // Create an Express application
-const dotenv = require('dotenv').config() // Load environment variables from a.env file
+import dotenv from 'dotenv'// Load environment variables from a.env file
+dotenv.config() 
 const port = process.env.PORT  // Get the port from the environment variables or default to 5000
-const POST = require('./controllers/post'); // Import the post routes
-const postRoutes = require('./routes/postRoutes'); // Import the post routes
-const commentRoutes = require('./routes/commentRoutes'); // Import the comment routes
-const mongoose = require('mongoose'); // Import mongoose
-const bodyParser = require('body-parser'); // Import body-parser
+import postRoutes from './routes/postRoutes'; // Import the post routes
+import commentRoutes from './routes/commentRoutes'; // Import the comment routes
+import mongoose from 'mongoose'; // Import mongoose
+import bodyParser from 'body-parser'; // Import body-parser
+
 
 
 const initApp = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise<Express>((resolve, reject) => {
       const db = mongoose.connection;
       db.on("error", (err) => {
         console.error(err);
@@ -41,4 +42,4 @@ const initApp = () => {
 })};
 
 
-module.exports = initApp;
+export default initApp;

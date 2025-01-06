@@ -1,10 +1,10 @@
-const request = require("supertest");
-const initApp = require("../server");
-const mongoose = require("mongoose");
-const commentModel = require("../models/commentModels");
-const postModel = require("../models/postModels");
+import request from "supertest";
+import initApp from "../server";
+import mongoose from "mongoose";
+import commentModel from "../models/commentModels";
+import { Express } from "express";
 
-var app;
+let app: Express;
 
 beforeAll(async () => {
   app = await initApp();
@@ -18,7 +18,8 @@ afterAll(async () => {
 });
 
 describe("Comments test suite", () => {
-  let postId; 
+  let postId;
+  let commentId;
   
   // Test get all comments
   test("Comment test get all comments", async () => {
