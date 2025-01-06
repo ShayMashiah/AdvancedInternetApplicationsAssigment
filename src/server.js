@@ -14,6 +14,7 @@ const initApp = () => {
       const db = mongoose.connection;
       db.on("error", (err) => {
         console.error(err);
+        reject(err);
       });
       db.once("open", () => {
         console.log("Connected to MongoDB");
@@ -21,7 +22,6 @@ const initApp = () => {
 
         // Connect to the database
         mongoose.connect(process.env.DB_CONNECT).then(() => {
-            console.log("initApp finish");
             
             // Use body-parser middleware
             app.use(bodyParser.json()); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
@@ -31,8 +31,11 @@ const initApp = () => {
             app.use('/post', postRoutes);
 
             app.use('/comment', commentRoutes);
+
+            console.log("initApp finish");
               
             resolve(app);
+
         });
 
 })};

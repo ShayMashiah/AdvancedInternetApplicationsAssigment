@@ -72,6 +72,24 @@ describe("Posts test suite", () => {
         const response = await request(app).get("/posts/67447b032ce3164be7c4412d");
         expect(response.statusCode).toBe(404);
       });
+    
+    test("Post test update post", async () => {
+        const response = await request(app)
+        .put("/post/" + postId)
+        .send({
+            title: "new title",
+            content: "new content",
+            author: "new author"
+        });
+        expect(response.statusCode).toBe(200);
+        expect(response.body.title).toBe("new title");
+        expect(response.body.content).toBe("new content");
+        expect(response.body.author).toBe("new author");
+    });
 
+    test("Post test delete post", async () => {
+        const response = await request(app).delete("/post/" + postId);
+        expect(response.statusCode).toBe(200);
+    });
 
 });
