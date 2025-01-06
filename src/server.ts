@@ -8,7 +8,12 @@ import mongoose from 'mongoose'; // Import mongoose
 import bodyParser from 'body-parser'; // Import body-parser
 import authRoutes from './routes/authRoutes'; // Import the auth routes
 
-
+// Use body-parser middleware
+app.use(bodyParser.json()); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
+app.use(bodyParser.urlencoded({ extended: true })); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
+app.use('/post', postRoutes);
+app.use('/comment', commentRoutes);
+app.use('/auth',authRoutes); 
 
 const initApp = () => {
     return new Promise<Express>((resolve, reject) => {
@@ -23,24 +28,9 @@ const initApp = () => {
 
         // Connect to the database
         mongoose.connect(process.env.DB_CONNECT).then(() => {
-            
-            // Use body-parser middleware
-            app.use(bodyParser.json()); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
-            app.use(bodyParser.urlencoded({ extended: true })); // Parse incoming request bodies in a middleware before your handlers, available under the req.body property.
-
-            // Use the post routes
-            app.use('/post', postRoutes);
-
-            app.use('/comment', commentRoutes);
-
-            app.use('/auth',authRoutes); 
-
-            console.log("initApp finish");
-              
-            resolve(app);
-
+          console.log("initApp finish");
+          resolve(app);
         });
-
 })};
 
 
