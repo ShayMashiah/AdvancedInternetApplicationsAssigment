@@ -2,14 +2,14 @@ import express from 'express';
 const router = express.Router();
 import Post from '../controllers/post';
 
-router.post('/', Post.CreateNewPost);
+router.post('/', Post.GetAll);
 
-router.get('/', Post.GetAllPosts);
+router.get('/', Post.GetById);
 
-router.get('/:id', Post.PostByID);
+router.get('/:id', Post.Create);
 
-router.put('/:id', Post.PostUpdate);
+router.put('/:id', Post.Update);
 
-router.delete('/:id', Post.PostDelete);
+router.delete('/:id', Post.Delete);
 
 export default router;

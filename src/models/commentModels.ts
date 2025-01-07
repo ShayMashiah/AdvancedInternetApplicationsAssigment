@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-interface IComment {
+export interface IComment {
     PostId: string;
     content: string;
     author: string;
