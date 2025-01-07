@@ -14,6 +14,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   console.log("afterAll");
+  await commentModel.deleteMany();
   await mongoose.connection.close();
 });
 
@@ -36,7 +37,6 @@ describe("Comments test suite", () => {
       author: "Shay Mashiah",
     });
     // Save the post
-    console.log(newPost.body);
     expect(newPost.statusCode).toBe(201); 
     postId = newPost.body._id; 
     // Create a new comment
@@ -45,9 +45,16 @@ describe("Comments test suite", () => {
       content: "This is a comment",
       author: "Shay Mashiah",
     };
+    const exampleComment2 = {
+      PostId: postId,
+      content: "This is a comment 2",
+      author: "Omri Ivry",
+    };
     // Save the comment
     const response = await request(app).post("/comment").send(exampleComment);
-    expect(response.statusCode).toBe(200);
+    await request(app).post("/comment").send(exampleComment2);
+
+    expect(response.statusCode).toBe(201);
     expect(response.body.PostId).toBe(postId.toString());
     expect(response.body.content).toBe(exampleComment.content);
     expect(response.body.author).toBe(exampleComment.author);
@@ -57,7 +64,7 @@ describe("Comments test suite", () => {
   test("Comment test get all comments after create", async () => {
     const response = await request(app).get("/comment");
     expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveLength(1);
+    expect(response.body).toHaveLength(2);
   });
 
   test("Comment test get comment by author", async () => {
@@ -79,10 +86,13 @@ describe("Comments test suite", () => {
   test("Comment test get comment by post id", async () => {
     const response = await request(app).get("/comment/" + postId);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveLength(1);
+    console.log(response.body);
     expect(response.body[0].PostId).toBe(postId.toString());
     expect(response.body[0].content).toBe("This is a comment");
     expect(response.body[0].author).toBe("Shay Mashiah");
+    expect(response.body[1].PostId).toBe(postId.toString());
+    expect(response.body[1].content).toBe("This is a comment 2");
+    expect(response.body[1].author).toBe("Omri Ivry");
   });
 
   test("Comment test get comment by post id fail", async () => {
