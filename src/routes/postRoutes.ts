@@ -1,6 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import Post from '../controllers/post';
+import {authMiddleware} from '../controllers/auth';
 
 router.get('/', Post.GetAll); 
 

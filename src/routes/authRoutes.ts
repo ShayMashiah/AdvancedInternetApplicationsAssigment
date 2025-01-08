@@ -6,4 +6,6 @@ router.get('/', User.GetUsers);
 
 router.post('/register', User.Register);
 
+router.post('/login', User.Login);
+
 export default router;
