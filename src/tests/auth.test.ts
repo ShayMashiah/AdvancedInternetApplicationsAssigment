@@ -113,7 +113,7 @@ describe("User test suite", () => {
     expect(refreshToken).toBeUndefined();
   });
 
-  // Test refresh token - get a new access token
+  // Test refresh token - get a new access and refresh token
   test("Refresh token", async () => {
     const response = await request(app).post("/auth/refresh").send({
       refreshToken: newUser.refreshToken
@@ -136,6 +136,15 @@ describe("User test suite", () => {
       refreshToken: newUser.refreshToken
     });
     expect(response2.statusCode).not.toBe(200);
+  });
+
+  test("Login after logout", async () => {
+    const response = await request(app).post("/auth/login").send(newUser);
+    expect(response.statusCode).toBe(200);
+    newUser.accessToken = response.body.accessToken;
+    newUser.refreshToken = response.body.refreshToken;
+    expect(newUser.accessToken).toBeDefined();
+    expect(newUser.refreshToken).toBeDefined();
   });
 
 
