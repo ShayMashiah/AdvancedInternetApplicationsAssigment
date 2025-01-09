@@ -27,7 +27,7 @@ beforeAll(async () => {
   });
   expect(loginResponse.statusCode).toBe(200);
 
-  token = loginResponse.body.token; 
+  token = loginResponse.body.accessToken; 
 });
 
 afterAll(async () => {

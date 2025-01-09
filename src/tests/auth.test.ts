@@ -160,13 +160,13 @@ describe("User test suite", () => {
     expect(response2.statusCode).toBe(200);
     const newRefreshToken = response2.body.refreshToken;
 
-    // Second time use the old refresh token expect to fail
+    // Try to use the old refresh token expect to fail
     const response3 = await request(app).post("/auth/refresh").send({
       refreshToken: newUser.refreshToken
     });
     expect(response3.statusCode).not.toBe(200);
 
-    // Third time use the new refresh token expect to fail
+    // Try to use the new refresh token and expect to fail because of perivous attempt
     const response4 = await request(app).post("/auth/refresh").send({
       refreshToken: newRefreshToken
     });
