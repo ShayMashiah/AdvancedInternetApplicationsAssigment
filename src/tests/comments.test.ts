@@ -2,14 +2,32 @@ import request from "supertest";
 import initApp from "../server";
 import mongoose from "mongoose";
 import commentModel from "../models/commentModels";
+import userModel from "../models/userModel";
 import { Express } from "express";
 
 let app: Express;
+let token: string;
 
 beforeAll(async () => {
   app = await initApp();
   console.log("beforeAll");
+
   await commentModel.deleteMany();
+  await userModel.deleteMany();
+
+  const userResponse = await request(app).post("/auth/register").send({
+      email: "testuser",
+      password: "testpassword",
+  });
+  expect(userResponse.statusCode).toBe(201);
+
+  const loginResponse = await request(app).post("/auth/login").send({
+      email: "testuser",
+      password: "testpassword",
+  });
+  expect(loginResponse.statusCode).toBe(200);
+
+  token = loginResponse.body.token; 
 });
 
 afterAll(async () => {
@@ -31,11 +49,13 @@ describe("Comments test suite", () => {
 
   test("Comment test Create Comment", async () => {
     // Create a new post
-    const newPost = await request(app).post("/post").send({
-      title: "Test Post",
-      content: "This is a test post",
-      author: "Shay Mashiah",
-    });
+    const newPost = await request(app).post("/post")
+      .set({ authorization: "JWT " + token })
+      .send({
+        title: "Test Post",
+        content: "This is a test post",
+        author: "Shay Mashiah",
+      });
     // Save the post
     expect(newPost.statusCode).toBe(201); 
     postId = newPost.body._id; 
@@ -50,9 +70,14 @@ describe("Comments test suite", () => {
       content: "This is a comment 2",
       author: "Omri Ivry",
     };
-    // Save the comment
-    const response = await request(app).post("/comment").send(exampleComment);
-    await request(app).post("/comment").send(exampleComment2);
+    // Save the first comments
+    const response = await request(app).post("/comment")
+      .set({ authorization: "JWT " + token })
+      .send(exampleComment);
+    // Create the second comment
+    await request(app).post("/comment")
+      .set({ authorization: "JWT " + token })
+      .send(exampleComment2);
 
     expect(response.statusCode).toBe(201);
     expect(response.body.PostId).toBe(postId.toString());
@@ -77,16 +102,16 @@ describe("Comments test suite", () => {
   test("Comment test create invalid comment", async () => {
     const response = await request(app)
     .post("/comment")
-    .send({
-      content: "This is a comment",
-      author: "Shay Mashiah"});
+      .set({ authorization: "JWT " + token })
+      .send({
+        content: "This is a comment",
+        author: "Shay Mashiah"});
     expect(response.statusCode).not.toBe(200);
     });
 
   test("Comment test get comment by post id", async () => {
     const response = await request(app).get("/comment/" + postId);
     expect(response.statusCode).toBe(200);
-    console.log(response.body);
     expect(response.body[0].PostId).toBe(postId.toString());
     expect(response.body[0].content).toBe("This is a comment");
     expect(response.body[0].author).toBe("Shay Mashiah");
@@ -106,13 +131,18 @@ describe("Comments test suite", () => {
       content: "This is an updated comment",
       author: "Shay Mashiah"
     };
-    const responseComment = await request(app).put("/comment/" + commentId).send(updatedComment);
+    const responseComment = await request(app)
+      .put("/comment/" + commentId)
+      .set({ authorization: "JWT " + token })
+      .send(updatedComment);
     expect(responseComment.statusCode).toBe(200);
     expect(responseComment.body.content).toBe("This is an updated comment");
   });
 
   test("Comment test delete comment", async () => {
-    const response = await request(app).delete("/comment/" + commentId);
+    const response = await request(app)
+      .delete("/comment/" + commentId)
+      .set({ authorization: "JWT " + token });
     expect(response.statusCode).toBe(200);
   });
 

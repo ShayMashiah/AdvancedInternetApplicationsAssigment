@@ -2,17 +2,36 @@ import request from "supertest";
 import initApp from "../server";
 import mongoose from "mongoose";
 import postModel from "../models/postModels";
+import userModel from "../models/userModel";
 import { Express } from "express";
+
+
 
 let app: Express;
 let postId: string;
+let token: string;
 
 beforeAll(async () => {
-  app = await initApp();
-  console.log("beforeAll");
-  await postModel.deleteMany();
-});
-
+    app = await initApp();
+    console.log("beforeAll");
+  
+    await postModel.deleteMany();
+    await userModel.deleteMany();
+  
+    const userResponse = await request(app).post("/auth/register").send({
+        email: "testuser",
+        password: "testpassword",
+    });
+    expect(userResponse.statusCode).toBe(201);
+  
+    const loginResponse = await request(app).post("/auth/login").send({
+        email: "testuser",
+        password: "testpassword",
+    });
+    expect(loginResponse.statusCode).toBe(200);
+  
+    token = loginResponse.body.token; 
+  });
 afterAll(async () => {
     console.log("afterAll");
     await mongoose.connection.close();
@@ -27,12 +46,13 @@ describe("Posts test suite", () => {
 
     test("Post test create post", async () => {
         const response = await request(app)
-        .post("/post")
-        .send({
+          .post("/post")
+          .set({ authorization: "JWT " + token })
+          .send({
             title: "title",
             content: "content",
-            author: "author"
-        });
+            author: "author",
+          });
         expect(response.statusCode).toBe(201);
         expect(response.body.title).toBe("title");
         expect(response.body.content).toBe("content");
@@ -42,13 +62,14 @@ describe("Posts test suite", () => {
 
     test("Post test create invalid post", async () => {
         const response = await request(app)
-        .post("/post")
-        .send({
+          .post("/post")
+          .set({ authorization: "JWT " + token })
+          .send({
             title: "title",
             content: "content",
-        });
+          });
         expect(response.statusCode).not.toBe(200);
-    });
+      });
 
     test("Post test get all post after create", async () => {
         const response = await request(app).get("/post");
@@ -75,23 +96,25 @@ describe("Posts test suite", () => {
         expect(response.statusCode).toBe(404);
       });
     
-    test("Post test update post", async () => {
+
+      test("Post test update post", async () => {
         const response = await request(app)
-        .put("/post/" + postId)
-        .send({
+          .put("/post/" + postId)
+          .set({ authorization: "JWT " + token }) 
+          .send({
             title: "new title",
             content: "new content",
-            author: "new author"
-        });
+            author: "new author",
+          });
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toBe("new title");
         expect(response.body.content).toBe("new content");
         expect(response.body.author).toBe("new author");
-    });
-
-    test("Post test delete post", async () => {
-        const response = await request(app).delete("/post/" + postId);
+      });
+      test("Post test delete post", async () => {
+        const response = await request(app)
+          .delete("/post/" + postId)
+          .set({ authorization: "JWT " + token });
         expect(response.statusCode).toBe(200);
+      });
     });
-
-});

@@ -7,10 +7,10 @@ router.get('/', Post.GetAll);
 
 router.get('/:id', Post.GetById); 
 
-router.post('/', Post.Create); 
+router.post('/', authMiddleware ,Post.Create); 
 
-router.put('/:id', Post.Update); 
+router.put('/:id', authMiddleware ,Post.Update); 
 
-router.delete('/:id', Post.Delete); 
+router.delete('/:id', authMiddleware ,Post.Delete); 
 
 export default router;
