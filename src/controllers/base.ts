@@ -22,12 +22,9 @@ class BaseController<T> {
     GetById = async (req: Request, res: Response) => {
         const id = req.params.id;
         try {
-            console.log(id);
             const item = await this.model.findById(id);
-            console.log(item);
             if (!item) {
                 const items = await this.model.find({ PostId: id });
-                console.log("enter");
                 if(items){
                     res.status(200).json(items);
                 }

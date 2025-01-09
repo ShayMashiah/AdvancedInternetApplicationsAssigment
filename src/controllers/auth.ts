@@ -44,7 +44,6 @@ const Register = async (req : Request, res : Response) => {
 
 const Login = async (req : Request, res : Response) => {
     const user = req.body;
-    console.log(user);
     if (!user.email || !user.password) {
         res.status(400).send('Username and password are required');
         return;
@@ -93,7 +92,6 @@ const Login = async (req : Request, res : Response) => {
         });
         return;
     } catch (error) {
-        console.log(error);
         res.status(400).send('Error logging in: ' + error);
         return;
     }
@@ -101,7 +99,6 @@ const Login = async (req : Request, res : Response) => {
 
 const Logout = async (req : Request, res : Response) => {
     const refreshToken = req.body.refreshToken;
-    console.log(refreshToken);
     if (!refreshToken) {
         res.status(400).send('Refresh token is required');
         return;
@@ -141,12 +138,10 @@ const Logout = async (req : Request, res : Response) => {
 const Refresh = async (req : Request, res : Response) => {
     const refreshToken = req.body.refreshToken;
     if (!refreshToken) {
-        console.log("here 1");
         res.status(400).send('Refresh token is required');
         return;
     }
     if (!process.env.TOKEN_SECRET) {
-        console.log("here 2");
         res.status(400).send('Missing auth configuration');
         return;
     }
@@ -207,7 +202,6 @@ const Refresh = async (req : Request, res : Response) => {
             refreshToken : newRefreshToken
         });
     } catch (err) {
-        console.log("here 6");
         res.status(400).send('Error refreshing token: ' + err);
         return;
         }
