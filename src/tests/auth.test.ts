@@ -182,4 +182,50 @@ describe("User test suite", () => {
     expect(response4.statusCode).not.toBe(200);
   });
 
+  // Test timeout on refresh token
+  jest.setTimeout(10000);
+  test("Timeout on refresh token", async () => {
+    // Create a new user
+    const slowUser: UserInfo = {
+        email: "SlowUser@gmail.com",
+        password: "123456"
+    };
+    await request(app).post("/auth/register").send(slowUser);
+    // Login a user - get a new refresh token
+    const LoginResponse = await request(app).post("/auth/login").send(slowUser);
+    expect(LoginResponse.statusCode).toBe(200);
+    slowUser.accessToken = LoginResponse.body.accessToken;
+    slowUser.refreshToken = LoginResponse.body.refreshToken;
+
+    await new Promise(resolve => setTimeout(resolve, 6000));
+    const response = await request(app).post("/post")
+    .set({ authorization: "JWT " + slowUser.accessToken })
+    .send({
+      title: "Will FAIL !",
+      content: "Because access token is expired",
+      author: "Shay Mashiah",
+    });
+    expect(response.statusCode).not.toBe(201);
+
+    // Refresh the token
+    const response2 = await request(app).post("/auth/refresh").send({
+      refreshToken: slowUser.refreshToken
+    });
+    expect(response2.statusCode).toBe(200);
+    slowUser.accessToken = response2.body.accessToken;
+    slowUser.refreshToken = response2.body.refreshToken;
+
+    // Try to create a new post after the token is refreshed
+    const response3 = await request(app).post("/post")
+    .set({ authorization: "JWT " + slowUser.accessToken })
+    .send({
+      title: "Will SUCSESS !",
+      content: "Because access token is refreshed",
+      author: "Shay Mashiah",
+    });
+    expect(response3.statusCode).toBe(201);
+    expect(response3.body.title).toBe("Will SUCSESS !");
+    expect(response3.body.content).toBe("Because access token is refreshed");
+    expect(response3.body.author).toBe("Shay Mashiah");
+  });
 });

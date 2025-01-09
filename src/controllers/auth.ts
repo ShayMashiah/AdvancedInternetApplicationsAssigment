@@ -101,6 +101,7 @@ const Login = async (req : Request, res : Response) => {
 
 const Logout = async (req : Request, res : Response) => {
     const refreshToken = req.body.refreshToken;
+    console.log(refreshToken);
     if (!refreshToken) {
         res.status(400).send('Refresh token is required');
         return;
@@ -131,7 +132,6 @@ const Logout = async (req : Request, res : Response) => {
         await user.save();
         res.status(200).send('Logged out');
     } catch (err) {
-        console.log(err);
         res.status(400).send('Error logging out: ' + err);
         return;
         }
@@ -141,10 +141,12 @@ const Logout = async (req : Request, res : Response) => {
 const Refresh = async (req : Request, res : Response) => {
     const refreshToken = req.body.refreshToken;
     if (!refreshToken) {
+        console.log("here 1");
         res.status(400).send('Refresh token is required');
         return;
     }
     if (!process.env.TOKEN_SECRET) {
+        console.log("here 2");
         res.status(400).send('Missing auth configuration');
         return;
     }
@@ -161,9 +163,9 @@ const Refresh = async (req : Request, res : Response) => {
             return;
         }
         if(!user.refreshTokens || !user.refreshTokens.includes(refreshToken)){
-            res.status(400).send('Invalid refresh token');
             user.refreshTokens = []
             await user.save();
+            res.status(400).send('Invalid refresh token');
             return;
         }
         const random = Math.floor(Math.random() * 1000000);
@@ -193,6 +195,7 @@ const Refresh = async (req : Request, res : Response) => {
         if(!newRefreshToken){
             user.refreshTokens = [];
             await user.save();
+
             res.status(400).send('Error creating refresh token');
             return;
         }
@@ -204,7 +207,7 @@ const Refresh = async (req : Request, res : Response) => {
             refreshToken : newRefreshToken
         });
     } catch (err) {
-        console.log("here 1");
+        console.log("here 6");
         res.status(400).send('Error refreshing token: ' + err);
         return;
         }
