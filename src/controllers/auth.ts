@@ -77,6 +77,10 @@ const Login = async (req : Request, res : Response) => {
     }
 }
 
+type Payload = {
+    _id: string;
+};
+
 export const authMiddleware = async (req : Request, res : Response, next : NextFunction) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -84,11 +88,12 @@ export const authMiddleware = async (req : Request, res : Response, next : NextF
         res.status(401).send('Access Denied');
         return;
     }
-    jwt.verify(token, process.env.TOKEN_SECRET, (err,user) => {
+    jwt.verify(token, process.env.TOKEN_SECRET, (err,payload) => {
         if (err) {
             res.status(400).send('Invalid Token' + err);
             return;
         }
+        req.query._id = (payload as Payload)._id;
         next();
     });
 }
