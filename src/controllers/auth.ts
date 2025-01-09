@@ -60,21 +60,155 @@ const Login = async (req : Request, res : Response) => {
             res.status(400).send('Invalid password');
             return;
         }
-        const token = jwt.sign(
-            {_id: user._id},
+        const random = Math.floor(Math.random() * 1000000);
+
+        const accessToken = jwt.sign(
+            {
+                _id: existingUser._id,
+                random: random
+            },
             process.env.TOKEN_SECRET,
             {expiresIn: process.env.TOKEN_EXPIRES_IN} 
         );
+
+        const refreshToken = jwt.sign(
+            {
+                _id: existingUser._id,
+                random: random
+            },
+            process.env.TOKEN_SECRET,
+            {expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN},
+
+        );
+        if (existingUser.refreshTokens == null) {
+            existingUser.refreshTokens = [];
+        }
+        existingUser.refreshTokens.push(refreshToken);
+        await existingUser.save();
         res.status(200).send({
             email : user.email,
             _id : user._id,
-            token : token
+            accessToken : accessToken,
+            refreshToken : refreshToken
         });
         return;
     } catch (error) {
+        console.log(error);
         res.status(400).send('Error logging in: ' + error);
         return;
     }
+}
+
+const Logout = async (req : Request, res : Response) => {
+    const refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+        res.status(400).send('Refresh token is required');
+        return;
+    }
+    if (!process.env.TOKEN_SECRET) {
+        res.status(400).send('Missing auth configuration');
+        return;
+    }
+    jwt.verify(refreshToken, process.env.TOKEN_SECRET, async (err,data) => {
+        if (err) {
+            res.status(400).send('Invalid refresh token');
+            return;
+        }
+        const payload = data as Payload;
+     try{
+        const user = await userModel.findOne({_id: payload._id});
+        if (!user) {
+            res.status(404).send('Invalid refresh token');
+            return;
+        }
+        if(!user.refreshTokens || !user.refreshTokens.includes(refreshToken)){
+            res.status(400).send('Invalid refresh token');
+            user.refreshTokens = []
+            await user.save();
+            return;
+        }
+        user.refreshTokens = user.refreshTokens.filter((t) => t !== refreshToken);
+        await user.save();
+        res.status(200).send('Logged out');
+    } catch (err) {
+        console.log(err);
+        res.status(400).send('Error logging out: ' + err);
+        return;
+        }
+    });
+}
+
+const Refresh = async (req : Request, res : Response) => {
+    const refreshToken = req.body.refreshToken;
+    if (!refreshToken) {
+        res.status(400).send('Refresh token is required');
+        return;
+    }
+    if (!process.env.TOKEN_SECRET) {
+        res.status(400).send('Missing auth configuration');
+        return;
+    }
+    jwt.verify(refreshToken, process.env.TOKEN_SECRET, async (err,data) => {
+        if (err) {
+            res.status(400).send('Invalid refresh token');
+            return;
+        }
+        const payload = data as Payload;
+     try{
+        const user = await userModel.findOne({_id: payload._id});
+        if (!user) {
+            res.status(404).send('Invalid refresh token');
+            return;
+        }
+        if(!user.refreshTokens || !user.refreshTokens.includes(refreshToken)){
+            res.status(400).send('Invalid refresh token');
+            user.refreshTokens = []
+            await user.save();
+            return;
+        }
+        const random = Math.floor(Math.random() * 1000000);
+
+        const newAccessToken = jwt.sign(
+            {
+                _id: user._id,
+                random: random
+            },
+            process.env.TOKEN_SECRET,
+            {expiresIn: process.env.TOKEN_EXPIRES_IN} 
+        );
+        if(!newAccessToken){
+            user.refreshTokens = [];
+            await user.save();
+            res.status(400).send('Error creating access token');
+            return;
+        }
+        const newRefreshToken = jwt.sign(
+            {
+                _id: user._id,
+                random: random
+            },
+            process.env.TOKEN_SECRET,
+            {expiresIn: process.env.TOKEN_EXPIRES_IN} 
+        );
+        if(!newRefreshToken){
+            user.refreshTokens = [];
+            await user.save();
+            res.status(400).send('Error creating refresh token');
+            return;
+        }
+        user.refreshTokens = user.refreshTokens.filter((t) => t !== refreshToken); 
+        user.refreshTokens.push(newRefreshToken);
+        await user.save();
+        res.status(200).send({
+            accessToken : newAccessToken,
+            refreshToken : newRefreshToken
+        });
+    } catch (err) {
+        console.log("here 1");
+        res.status(400).send('Error refreshing token: ' + err);
+        return;
+        }
+    });        
 }
 
 type Payload = {
@@ -98,4 +232,4 @@ export const authMiddleware = async (req : Request, res : Response, next : NextF
     });
 }
 
-export default {GetUsers,Register,Login};
+export default {GetUsers,Register,Login, Logout, Refresh};

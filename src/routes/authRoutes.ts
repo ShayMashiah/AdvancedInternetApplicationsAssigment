@@ -8,4 +8,8 @@ router.post('/register', User.Register);
 
 router.post('/login', User.Login);
 
+router.post('/logout', User.Logout);
+
+router.post('/refresh', User.Refresh);
+
 export default router;
