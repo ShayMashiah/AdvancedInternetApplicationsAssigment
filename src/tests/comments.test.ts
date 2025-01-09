@@ -32,7 +32,6 @@ beforeAll(async () => {
 
 afterAll(async () => {
   console.log("afterAll");
-  await commentModel.deleteMany();
   await mongoose.connection.close();
 });
 
@@ -40,7 +39,6 @@ describe("Comments test suite", () => {
   let postId;
   let commentId;
   
-  // Test get all comments
   test("Comment test get all comments", async () => {
     const response = await request(app).get("/comment");
     expect(response.statusCode).toBe(200);
