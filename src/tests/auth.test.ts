@@ -15,6 +15,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   console.log("afterAll");
+  await userModel.deleteMany();
   await mongoose.connection.close();
 });
 
@@ -119,7 +120,6 @@ describe("User test suite", () => {
       refreshToken: newUser.refreshToken
     });
     expect(response.statusCode).toBe(200);
-    console.log(response.body);
     expect(response.body.accessToken).toBeDefined();
     expect(response.body.refreshToken).toBeDefined();
     newUser.accessToken = response.body.accessToken;

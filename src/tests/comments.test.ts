@@ -3,6 +3,7 @@ import initApp from "../server";
 import mongoose from "mongoose";
 import commentModel from "../models/commentModels";
 import userModel from "../models/userModel";
+import postModel from "../models/postModels";
 import { Express } from "express";
 
 let app: Express;
@@ -32,6 +33,8 @@ beforeAll(async () => {
 
 afterAll(async () => {
   console.log("afterAll");
+  await commentModel.deleteMany();
+  await postModel.deleteMany();
   await mongoose.connection.close();
 });
 
