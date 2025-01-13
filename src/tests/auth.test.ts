@@ -34,18 +34,28 @@ const newUser: UserInfo = {
 describe("User test suite", () => {
 
   // Test get all users
-  test("User test get all users", async () => {
+  test("User test - get all users", async () => {
     const response = await request(app).get("/auth");
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveLength(0);
   });
 
-  test("User test Create User", async () => {
+  test("User test - error get all users", async () => {
+    jest.spyOn(userModel, 'find').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const response = await request(app).get("/auth");
+    expect(response.statusCode).toBe(400);
+
+    (userModel.find as jest.Mock).mockRestore();
+  });
+
+  test("User test - Create User", async () => {
     const response = await request(app).post("/auth/register").send(newUser);
     expect(response.statusCode).toBe(201);
   });
 
-  test("User test Create User - User already exists", async () => {
+  test("User test - Create User - User already exists", async () => {
     // Create a new user
     const user = {
         "email": "ShayMashiah@gmail.com",
@@ -55,7 +65,7 @@ describe("User test suite", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("User test Create User - Missing email", async () => {
+  test("User test - Create User - Missing email", async () => {
     const user = {
         "password": "123456"
     };
@@ -63,7 +73,7 @@ describe("User test suite", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("User test Create User - Missing password", async () => {
+  test("User test - Create User - Missing password", async () => {
     const user = {
         "email": "ShayMashiah@gmail.com"
     }
@@ -71,7 +81,7 @@ describe("User test suite", () => {
     expect(response.statusCode).toBe(400);
   });
 
-  test("User test Login sucsessed", async () => {
+  test("User test - Login success", async () => {
     // Login a user
     const response = await request(app).post("/auth/login").send(newUser);
     expect(response.statusCode).toBe(200);
@@ -81,12 +91,22 @@ describe("User test suite", () => {
     expect(newUser.refreshToken).toBeDefined();
   });
 
+  test("User test - Login error", async () => {
+    jest.spyOn(userModel, 'findOne').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const response = await request(app).post("/auth/login").send(newUser);
+    expect(response.statusCode).toBe(400);
+
+    (userModel.findOne as jest.Mock).mockRestore();
+  });
+
   test("User test - Make sure two access tokens are not the same", async () => {
     const response = await request(app).post("/auth/login").send(newUser);
     expect(response.body.accessToken).not.toBe(newUser.accessToken);
   });
 
-  test("User test Login - User does not exist", async () => {
+  test("User test - Login - User does not exist", async () => {
     // Login a user
     const user = {
         "email": "Omriivri@gmail.com",
@@ -114,8 +134,24 @@ describe("User test suite", () => {
     expect(refreshToken).toBeUndefined();
   });
 
+  test("User test - Missing email", async () => {
+    const user = {
+        "password": "123456"
+    };
+    const response = await request(app).post("/auth/login").send(user);
+    expect(response.statusCode).toBe(400);
+  });
+
+  test("User test - Missing password", async () => {
+    const user = {
+        "email": "Shay@gmail.com"
+    };
+    const response = await request(app).post("/auth/login").send(user);
+    expect(response.statusCode).toBe(400);
+  });
+
   // Test refresh token - get a new access and refresh token
-  test("Refresh token", async () => {
+  test("User test - Refresh token", async () => {
     const response = await request(app).post("/auth/refresh").send({
       refreshToken: newUser.refreshToken
     });
@@ -126,8 +162,22 @@ describe("User test suite", () => {
     newUser.refreshToken = response.body.refreshToken;
   });
 
+  test("User test - Refresh token - Invalid refresh token", async () => {
+    const response = await request(app).post("/auth/refresh").send({
+      refreshToken: "Invalid refresh token"
+    });
+    expect(response.statusCode).not.toBe(200);
+  });
+
+  test("User test - Refresh token - Missing refresh token", async () => {
+    const response = await request(app).post("/auth/refresh").send({
+      refreshToken: ""
+    });
+    expect(response.statusCode).not.toBe(200);
+  });
+
   // Test logout - delete the refresh token and verify that the refresh token is not valid anymore
-  test("Logout", async () => {
+  test("User test - success logout", async () => {
     const response = await request(app).post("/auth/logout").send({
       refreshToken: newUser.refreshToken
     });
@@ -138,7 +188,26 @@ describe("User test suite", () => {
     expect(response2.statusCode).not.toBe(200);
   });
 
-  test("Login after logout", async () => {
+  test("User test - error logout", async () => {
+    jest.spyOn(userModel, 'findOne').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const response = await request(app).post("/auth/logout").send({
+      refreshToken: newUser.refreshToken
+    });
+    expect(response.statusCode).toBe(400);
+
+    (userModel.findOne as jest.Mock).mockRestore();
+  });
+
+  test("User test - Logout - Missing refresh token", async () => {
+    const response = await request(app).post("/auth/logout").send({
+      refreshToken: ""
+    });
+    expect(response.statusCode).toBe(400);
+  });
+
+  test("User test - Login after logout", async () => {
     const response = await request(app).post("/auth/login").send(newUser);
     expect(response.statusCode).toBe(200);
     newUser.accessToken = response.body.accessToken;
@@ -147,9 +216,7 @@ describe("User test suite", () => {
     expect(newUser.refreshToken).toBeDefined();
   });
 
-
-
-  test("Refresh token multiple times", async () => {
+  test("User test Refresh token multiple times", async () => {
     // Create a new user
     const secondUser: UserInfo = {
         email: "Omriivri@gmail.com",
@@ -182,10 +249,29 @@ describe("User test suite", () => {
     expect(response4.statusCode).not.toBe(200);
   });
 
+  test("User test - Refresh token - Missing refresh token", async () => {
+    const response = await request(app).post("/auth/refresh").send({
+      refreshToken: ""
+    });
+    expect(response.statusCode).not.toBe(200);
+  });
+
+  test("User test - Refresh token - error refresh token", async () => {
+    jest.spyOn(userModel, 'findOne').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const response = await request(app).post("/auth/refresh").send({
+      refreshToken: newUser.refreshToken
+    });
+    expect(response.statusCode).toBe(400);
+
+    (userModel.findOne as jest.Mock).mockRestore();
+  });
+
   // New timeout to adjust to swagger
   // Test timeout on refresh token
   jest.setTimeout(50000);
-  test("Timeout on refresh token", async () => {
+  test("User test - Timeout on refresh token", async () => {
     // Create a new user
     const slowUser: UserInfo = {
         email: "SlowUser@gmail.com",

@@ -38,13 +38,23 @@ afterAll(async () => {
 });
 
 describe("Posts test suite", () => {
-    test("Post test get all posts", async () => {
+    test("Post test - Get all posts", async () => {
         const response = await request(app).get("/post");
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveLength(0);
     });
 
-    test("Post test create post", async () => {
+    test("Post test - Error get all posts", async () => {
+      jest.spyOn(postModel, 'find').mockImplementation(() => {
+        throw new Error("Database error");
+    });
+        const response = await request(app).get("/posts");
+        expect(response.statusCode).not.toBe(400);
+
+        (postModel.find as jest.Mock).mockRestore();
+    });
+
+    test("Post test - Create post", async () => {
         const response = await request(app)
           .post("/post")
           .set({ authorization: "JWT " + token })
@@ -60,7 +70,35 @@ describe("Posts test suite", () => {
         postId = response.body._id;
     });
 
-    test("Post test create invalid post", async () => {
+    test("Post test - Error create post", async () => {
+      jest.spyOn(postModel, 'create').mockImplementation(() => {
+        throw new Error("Database error");
+    });
+        const response = await request(app)
+          .post("/post")
+          .set({ authorization: "JWT " + token })
+          .send({
+            title: "title",
+            content: "content",
+            author: "author",
+          });
+        expect(response.statusCode).toBe(400);
+        (postModel.create as jest.Mock).mockRestore();
+    });
+
+    test("Post test - Create post without token", async () => {
+        const response = await request(app)
+          .post("/post")
+          .set({ authorization: "JWT" + ""})
+          .send({
+            title: "title",
+            content: "content",
+            author: "author",
+          });
+        expect(response.statusCode).toBe(401);
+      });
+
+    test("Post test - Create invalid post", async () => {
         const response = await request(app)
           .post("/post")
           .set({ authorization: "JWT " + token })
@@ -71,19 +109,28 @@ describe("Posts test suite", () => {
         expect(response.statusCode).not.toBe(200);
       });
 
-    test("Post test get all post after create", async () => {
+    test("Post test - Get all post after create", async () => {
         const response = await request(app).get("/post");
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveLength(1);
     });
 
-    test("Post test get post by author", async () => {
+    test("Post test - Get post by author", async () => {
         const response = await request(app).get("/post?author=author");
         expect(response.statusCode).toBe(200);
         expect(response.body).toHaveLength(1);
     });
 
-    test("Post test get post by id", async () => {
+    test("Post test - Get post by author error", async () => {
+      jest.spyOn(postModel, 'find').mockImplementation(() => {
+        throw new Error("Database error");
+    });
+        const response = await request(app).get("/post?author=author");
+        expect(response.statusCode).not.toBe(200);
+        (postModel.find as jest.Mock).mockRestore();
+    });
+
+    test("Post test - Get post by id", async () => {
         const response = await request(app).get("/post/" + postId);
         expect(response.statusCode).toBe(200);
         expect(response.body.title).toBe("title");
@@ -91,13 +138,21 @@ describe("Posts test suite", () => {
         expect(response.body.author).toBe("author");
     });
 
-    test("Post test get post by id fail", async () => {
+    test("Post test - Get post by id error", async () => {
+      jest.spyOn(postModel, 'findById').mockImplementation(() => {
+        throw new Error("Database error");
+    });
+        const response = await request(app).get("/post/" + postId);
+        expect(response.statusCode).not.toBe(200);
+        (postModel.findById as jest.Mock).mockRestore();
+    });
+
+    test("Post test - Get post by id fail", async () => {
         const response = await request(app).get("/posts/67447b032ce3164be7c4412d");
         expect(response.statusCode).toBe(404);
       });
     
-
-      test("Post test update post", async () => {
+      test("Post test - Update post", async () => {
         const response = await request(app)
           .put("/post/" + postId)
           .set({ authorization: "JWT " + token }) 
@@ -111,15 +166,81 @@ describe("Posts test suite", () => {
         expect(response.body.content).toBe("new content");
         expect(response.body.author).toBe("new author");
       });
-      test("Post test delete post", async () => {
+
+      test("Post test - Update post error", async () => {
+        jest.spyOn(postModel, 'findByIdAndUpdate').mockImplementation(() => {
+          throw new Error("Database error");
+      });
+          const response = await request(app)
+            .put("/post/" + postId)
+            .set({ authorization: "JWT " + token }) 
+            .send({
+              title: "new title",
+              content: "new content",
+              author: "new author",
+            });
+          expect(response.statusCode).toBe(400);
+          (postModel.findByIdAndUpdate as jest.Mock).mockRestore();
+      });
+
+      test("Post test - Update post that not exist", async () => {
+        const response = await request(app)
+          .put("/post/67447b032ce3164be7c4412d")
+          .set({ authorization: "JWT " + token })
+          .send({
+            title: "new title",
+            content: "new content",
+            author: "new author",
+          });
+        expect(response.statusCode).toBe(404);
+      });
+
+      test("Post test - Update post without token", async () => {
+        const response = await request(app)
+          .put("/post/" + postId)
+          .set({ authorization : "JWT" + ""})
+          .send({
+            title: "new title",
+            content: "new content",
+            author: "new author",
+          });
+        expect(response.statusCode).toBe(401);
+      });
+
+      test("Post test - Delete post", async () => {
         const response = await request(app)
           .delete("/post/" + postId)
           .set({ authorization: "JWT " + token });
         expect(response.statusCode).toBe(200);
       });
 
+      test("Post test - Delete post error", async () => {
+        jest.spyOn(postModel, 'findByIdAndDelete').mockImplementation(() => {
+          throw new Error("Database error");
+      });
+          const response = await request(app)
+            .delete("/post/" + postId)
+            .set({ authorization: "JWT " + token });
+          expect(response.statusCode).toBe(400);
+          (postModel.findByIdAndDelete as jest.Mock).mockRestore();
+      });
+
+      test("Post test - Delete post that not exist", async () => {
+        const response = await request(app)
+          .delete("/post/67447b032ce3164be7c4412d")
+          .set({ authorization: "JWT " + token });
+        expect(response.statusCode).toBe(404);
+      });
+
+      test("Post test - Delete post without token", async () => {
+        const response = await request(app)
+          .delete("/post/" + postId)
+          .set({ authorization: "JWT" + "" });
+        expect(response.statusCode).toBe(401);
+      });
+
       // New test -> check if all comment related delete as well
-      test("Post test delete post and all comments related", async () => {
+      test("Post test - Delete post and all comments related", async () => {
         const postResponse = await request(app)
           .post("/post")
           .set({ authorization: "JWT " + token })

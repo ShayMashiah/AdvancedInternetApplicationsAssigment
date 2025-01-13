@@ -40,16 +40,26 @@ afterAll(async () => {
 });
 
 describe("Comments test suite", () => {
-  let postId;
-  let commentId;
+  let postId : string;
+  let commentId : string;
   
-  test("Comment test get all comments", async () => {
+  test("Comment test - Get all comments", async () => {
     const response = await request(app).get("/comment");
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveLength(0);
   });
 
-  test("Comment test Create Comment", async () => {
+  test("Comment test - Error get all comments", async () => {
+    jest.spyOn(commentModel, 'find').mockImplementation(() => {
+      throw new Error("Database error");
+  });
+      const response = await request(app).get("/comment");
+      expect(response.statusCode).toBe(400);
+
+      (commentModel.find as jest.Mock).mockRestore();
+  });
+
+  test("Comment test - Create Comment", async () => {
     // Create a new post
     const newPost = await request(app).post("/post")
       .set({ authorization: "JWT " + token })
@@ -87,9 +97,37 @@ describe("Comments test suite", () => {
     expect(response.body.author).toBe(exampleComment.author);
     commentId = response.body._id;
   });
-  
+
+  test("Comment test - Error create comment", async () => {
+    const exampleComment = {
+      PostId: postId,
+      content: "This is a comment",
+      author: "Shay Mashiah",
+    };
+    jest.spyOn(commentModel, 'create').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const response = await request(app).post("/comment")
+      .set({ authorization: "JWT " + token })
+      .send(exampleComment);
+    expect(response.statusCode).toBe(400);
+    (commentModel.create as jest.Mock).mockRestore();
+  });
+
+  test("Comment test - Create comment without access token", async () => {
+    const exampleComment = {
+      PostId: postId,
+      content: "This is a comment",
+      author: "Shay Mashiah",
+    };
+    const response = await request(app).post("/comment")
+      .set({ authorization: "JWT " + "" })
+      .send(exampleComment);
+    expect(response.statusCode).toBe(401);
+  });
+
 //new test -> create comment to non existing post
-  test("Comment test create comment to non existing post", async () => {
+  test("Comment test - Create comment to non existing post", async () => {
     const exampleComment = {
       PostId: "507f191e810c19729de860ea",
       content: "This is a comment",
@@ -101,20 +139,20 @@ describe("Comments test suite", () => {
     expect(response.statusCode).toBe(404);
   });
 
-  test("Comment test get all comments after create", async () => {
+  test("Comment test - Get all comments after create", async () => {
     const response = await request(app).get("/comment");
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveLength(2);
   });
 
-  test("Comment test get comment by author", async () => {
+  test("Comment test - Get comment by author", async () => {
     const response = await request(app).get("/comment?author=Shay Mashiah");
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveLength(1);
     expect(response.body[0].author).toBe("Shay Mashiah");
   });
 
-  test("Comment test create invalid comment", async () => {
+  test("Comment test - Create invalid comment", async () => {
     const response = await request(app)
     .post("/comment")
       .set({ authorization: "JWT " + token })
@@ -124,7 +162,7 @@ describe("Comments test suite", () => {
     expect(response.statusCode).not.toBe(200);
     });
 
-  test("Comment test get comment by post id", async () => {
+  test("Comment test - Get comment by post id", async () => {
     const response = await request(app).get("/comment/" + postId);
     expect(response.statusCode).toBe(200);
     expect(response.body[0].PostId).toBe(postId.toString());
@@ -135,12 +173,21 @@ describe("Comments test suite", () => {
     expect(response.body[1].author).toBe("Omri Ivry");
   });
 
-  test("Comment test get comment by post id fail", async () => {
+  test("Comment test - Error get comment by post id", async () => {
+    jest.spyOn(commentModel, 'find').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const response = await request(app).get("/comment/" + postId);
+    expect(response.statusCode).toBe(400);
+    (commentModel.find as jest.Mock).mockRestore();
+  });
+
+  test("Comment test - Get comment by post id fail", async () => {
     const response = await request(app).get("/comment/507f191e810c19729de860ea");
     expect(response.statusCode).toBe(404);
   });
 
-  test("Comment test update comment", async () => {
+  test("Comment test - Update comment", async () => {
     const updatedComment = {
       PostId: postId,
       content: "This is an updated comment",
@@ -154,11 +201,79 @@ describe("Comments test suite", () => {
     expect(responseComment.body.content).toBe("This is an updated comment");
   });
 
-  test("Comment test delete comment", async () => {
+  test("Comment test - Update comment error", async () => {
+    const updatedComment = {
+      PostId: postId,
+      content: "This is an updated comment",
+      author: "Shay Mashiah"
+    };
+    jest.spyOn(commentModel, 'findByIdAndUpdate').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const responseComment = await request(app)
+      .put("/comment/" + commentId)
+      .set({ authorization: "JWT " + token })
+      .send(updatedComment);
+    expect(responseComment.statusCode).toBe(400);
+    (commentModel.findByIdAndUpdate as jest.Mock).mockRestore();
+  });
+
+  test("Comment test - Update comment that does not exist", async () => {
+    const updatedComment = {
+      PostId: postId,
+      content: "This is an updated comment",
+      author: "Shay Mashiah"
+    };
+    const responseComment = await request(app)
+      .put("/comment/507f191e810c19729de860ea")
+      .set( {authorization: "JWT " + token } )
+      .send(updatedComment);
+    expect(responseComment.statusCode).toBe(404);
+  });
+
+  test("Comment test - Update comment without access token", async () => {
+    const updatedComment = {
+      PostId: postId,
+      content: "This is an updated comment",
+      author: "Shay Mashiah"
+    };
+    const responseComment = await request(app)
+      .put("/comment/" + commentId)
+      .set({ authorization : "JWT" + ""})
+      .send(updatedComment);
+    expect(responseComment.statusCode).toBe(401);
+  });
+
+  test("Comment test - Delete comment", async () => {
     const response = await request(app)
       .delete("/comment/" + commentId)
       .set({ authorization: "JWT " + token });
     expect(response.statusCode).toBe(200);
+  });
+
+  test("Comment test - Delete comment error", async () => {
+    jest.spyOn(commentModel, 'findByIdAndDelete').mockImplementation(() => {
+      throw new Error("Database error");
+    });
+    const response = await request(app)
+      .delete("/comment/" + commentId)
+      .set({ authorization: "JWT " + token });
+    expect(response.statusCode).toBe(400);
+    (commentModel.findByIdAndDelete as jest.Mock).mockRestore();
+  });
+
+  test("Comment test - Delete comment that does not exist", async () => {
+    const response = await request(app)
+      .delete("/comment/507f191e810c19729de860ea")
+      .set({ authorization: "JWT " + token });
+    expect(response.statusCode).toBe(404);
+  });
+
+  test("Comment test - Delete comment without access token", async () => {
+    const response = await request(app)
+      .delete("/comment/" + commentId)
+      .set({ authorization: "JWT " + ""});
+    expect(response.statusCode).toBe(401);
   });
 
 });
