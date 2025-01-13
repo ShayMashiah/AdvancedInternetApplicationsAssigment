@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
+import Comment from "../models/commentModels"; // Adjust the import path as necessary
+import Post from "../models/postModels"; // Adjust the import path as necessary
 import { Model } from "mongoose";
+
 class BaseController<T> {
     model: Model<T>;
     constructor(model: Model<T>) {
@@ -21,11 +24,12 @@ class BaseController<T> {
     }
     GetById = async (req: Request, res: Response) => {
         const id = req.params.id;
+        console.log(id);
         try {
             const item = await this.model.findById(id);
             if (!item) {
                 const items = await this.model.find({ PostId: id });
-                if(items){
+                if (items.length > 0) {
                     res.status(200).json(items);
                 }
                 else{
@@ -35,10 +39,19 @@ class BaseController<T> {
             res.status(200).json(item);
             }
         } catch (error) {
-            res.status(404).json('Error finding item: ' + error);
+            console.log(error);
+            res.status(400).json('Error finding item: ' + error);
         }
     }   
     Create = async (req: Request, res: Response) => {
+        //צריך להוסיף בדיקה אם postid קיים
+        if(req.body.PostId){
+            const postExist = await Post.findById(req.body.PostId);
+            if(!postExist){
+                res.status(404).json('Post not found');
+                return;
+            }
+        }
         const item = req.body;
         try {
             const savedItem = await this.model.create(item);
@@ -63,6 +76,8 @@ class BaseController<T> {
     Delete = async (req: Request, res: Response) => {
         const id = req.params.id;
         try {
+            await Comment.deleteMany({ PostId: id });
+
             const item = await this.model.findByIdAndDelete(id);
             if (!item) {
                 res.status(404).json('Item not found');

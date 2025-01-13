@@ -182,8 +182,9 @@ describe("User test suite", () => {
     expect(response4.statusCode).not.toBe(200);
   });
 
+  // New timeout to adjust to swagger
   // Test timeout on refresh token
-  jest.setTimeout(10000);
+  jest.setTimeout(50000);
   test("Timeout on refresh token", async () => {
     // Create a new user
     const slowUser: UserInfo = {
@@ -197,7 +198,7 @@ describe("User test suite", () => {
     slowUser.accessToken = LoginResponse.body.accessToken;
     slowUser.refreshToken = LoginResponse.body.refreshToken;
 
-    await new Promise(resolve => setTimeout(resolve, 6000));
+    await new Promise(resolve => setTimeout(resolve, 40000));
     const response = await request(app).post("/post")
     .set({ authorization: "JWT " + slowUser.accessToken })
     .send({

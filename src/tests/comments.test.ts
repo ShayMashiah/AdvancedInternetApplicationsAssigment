@@ -6,6 +6,7 @@ import userModel from "../models/userModel";
 import postModel from "../models/postModels";
 import { Express } from "express";
 
+
 let app: Express;
 let token: string;
 
@@ -86,6 +87,19 @@ describe("Comments test suite", () => {
     expect(response.body.author).toBe(exampleComment.author);
     commentId = response.body._id;
   });
+  
+//new test -> create comment to non existing post
+  test("Comment test create comment to non existing post", async () => {
+    const exampleComment = {
+      PostId: "507f191e810c19729de860ea",
+      content: "This is a comment",
+      author: "Shay Mashiah",
+    };
+    const response = await request(app).post("/comment")
+      .set({ authorization: "JWT " + token })
+      .send(exampleComment);
+    expect(response.statusCode).toBe(404);
+  });
 
   test("Comment test get all comments after create", async () => {
     const response = await request(app).get("/comment");
@@ -122,7 +136,7 @@ describe("Comments test suite", () => {
   });
 
   test("Comment test get comment by post id fail", async () => {
-    const response = await request(app).get("/comment/123");
+    const response = await request(app).get("/comment/507f191e810c19729de860ea");
     expect(response.statusCode).toBe(404);
   });
 

@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import postModel from "../models/postModels";
 import userModel from "../models/userModel";
 import { Express } from "express";
-
+import commentModel from "../models/commentModels";
 
 
 let app: Express;
@@ -14,9 +14,9 @@ let token: string;
 beforeAll(async () => {
     app = await initApp();
     console.log("beforeAll");
-  
     await postModel.deleteMany();
     await userModel.deleteMany();
+    await commentModel.deleteMany();
   
     const userResponse = await request(app).post("/auth/register").send({
         email: "testuser",
@@ -116,5 +116,35 @@ describe("Posts test suite", () => {
           .delete("/post/" + postId)
           .set({ authorization: "JWT " + token });
         expect(response.statusCode).toBe(200);
+      });
+
+      // New test -> check if all comment related delete as well
+      test("Post test delete post and all comments related", async () => {
+        const postResponse = await request(app)
+          .post("/post")
+          .set({ authorization: "JWT " + token })
+          .send({
+            title: "title",
+            content: "content",
+            author: "author",
+          });
+        expect(postResponse.statusCode).toBe(201);
+        const postId = postResponse.body._id;
+        const commentResponse = await request(app)
+          .post("/comment")
+          .set({ authorization: "JWT " + token })
+          .send({
+            PostId: postId,
+            content: "content",
+            author: "author",
+          });
+        expect(commentResponse.statusCode).toBe(201);
+        const response = await request(app)
+          .delete("/post/" + postId)
+          .set({ authorization: "JWT " + token });
+        expect(response.statusCode).toBe(200);
+        const commentResponse2 = await request(app).get("/comment");
+        expect(commentResponse2.statusCode).toBe(200);
+        expect(commentResponse2.body).toHaveLength(0);
       });
     });
