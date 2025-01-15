@@ -24,7 +24,6 @@ class BaseController<T> {
     }
     GetById = async (req: Request, res: Response) => {
         const id = req.params.id;
-        console.log(id);
         try {
             const item = await this.model.findById(id);
             if (!item) {
@@ -39,12 +38,10 @@ class BaseController<T> {
             res.status(200).json(item);
             }
         } catch (error) {
-            console.log(error);
             res.status(400).json('Error finding item: ' + error);
         }
     }   
     Create = async (req: Request, res: Response) => {
-        //צריך להוסיף בדיקה אם postid קיים
         if(req.body.PostId){
             const postExist = await Post.findById(req.body.PostId);
             if(!postExist){

@@ -7,10 +7,8 @@ const GetUsers = async (req: Request, res: Response) => {
     try {
         const users = await userModel.find();
         res.status(200).send(users);
-        return;
     } catch (error) {
         res.status(400).send('Error getting users: ' + error);
-        return;
     }
 }
 
@@ -35,10 +33,8 @@ const Register = async (req : Request, res : Response) => {
         };
         const savedUser = await userModel.create(newUser);
         res.status(201).send(savedUser);
-        return;
     } catch (error) {
         res.status(400).send('Error creating user: ' + error);
-        return;
     }
 }
 
@@ -90,10 +86,8 @@ const Login = async (req : Request, res : Response) => {
             accessToken : accessToken,
             refreshToken : refreshToken
         });
-        return;
     } catch (error) {
         res.status(400).send('Error logging in: ' + error);
-        return;
     }
 }
 
@@ -130,7 +124,6 @@ const Logout = async (req : Request, res : Response) => {
         res.status(200).send('Logged out');
     } catch (err) {
         res.status(400).send('Error logging out: ' + err);
-        return;
         }
     });
 }
@@ -154,7 +147,7 @@ const Refresh = async (req : Request, res : Response) => {
      try{
         const user = await userModel.findOne({_id: payload._id});
         if (!user) {
-            res.status(404).send('Invalid refresh token');
+            res.status(404).send('User not found');
             return;
         }
         if(!user.refreshTokens || !user.refreshTokens.includes(refreshToken)){
@@ -190,7 +183,6 @@ const Refresh = async (req : Request, res : Response) => {
         if(!newRefreshToken){
             user.refreshTokens = [];
             await user.save();
-
             res.status(400).send('Error creating refresh token');
             return;
         }
@@ -203,7 +195,6 @@ const Refresh = async (req : Request, res : Response) => {
         });
     } catch (err) {
         res.status(400).send('Error refreshing token: ' + err);
-        return;
         }
     });        
 }
